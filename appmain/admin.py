@@ -5,6 +5,7 @@ from django.db import ProgrammingError
 from .models import *
 
 
+# TODO: Закомментировать при первой миграции
 @admin.register(ProjectConfig)
 class ProjectConfigAdmin(admin.ModelAdmin):
     def __init__(self, model, admin_site):

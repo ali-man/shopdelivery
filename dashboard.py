@@ -11,11 +11,10 @@ class CustomIndexDashboard(Dashboard):
                 display='tabs',
                 children=[
                     modules.ModelList(
-                        title='Блог',
+                        title='Основное',
                         models=(
-                            'appblog.models.Rubric',
-                            'appblog.models.Tag',
-                            'appblog.models.Article',
+                            'appmain.models.ProjectConfig',
+                            'appmain.models.Feedback',
                         )
                     ),
                     modules.ModelList(
@@ -23,13 +22,8 @@ class CustomIndexDashboard(Dashboard):
                         models=(
                             'appcatalogs.models.Category',
                             'appcatalogs.models.Product',
-                        )
-                    ),
-                    modules.ModelList(
-                        title='Блог',
-                        models=(
-                            'apps.general.models.CategoryArticle',
-                            'apps.general.models.Article',
+                            'appcatalogs.models.Brand',
+                            'appcatalogs.models.VolumeDesignation',
                         )
                     ),
                     modules.ModelList(

@@ -20,19 +20,21 @@ class SingletonModel(models.Model):
 
 
 class ProjectConfig(SingletonModel):
-    name = models.CharField(verbose_name='Название проекта', default='TezFood')
-    logo = models.ImageField(verbose_name='Логотип проекта', upload_to='images/project/')
-    phone = models.CharField(verbose_name='Телефон поддержки', default='+998914266874')
+    name = models.CharField(verbose_name='Название проекта', max_length=150, default='TezFood')
+    logo = models.ImageField(verbose_name='Логотип проекта', upload_to='images/project/', blank=True)
+    phone = models.CharField(verbose_name='Телефон поддержки', max_length=15, default='+998914266874')
     time_work = RichTextUploadingField(verbose_name='Режим работы', blank=True)
-    currency = models.CharField(verbose_name='Валюта', default='сум')
+    currency = models.CharField(verbose_name='Валюта', max_length=15, default='сум')
     quantity_products_page = models.PositiveSmallIntegerField(verbose_name='Количество товаров на странице', default=20)
     footer_text = models.TextField(verbose_name='Текст в подвале сайта',
                                    default='Created by <a href="https://t.me/alimanuz" target="_blank" >Ali-man</a>')
-    verbose_name = 'Настройка проекта'
-    verbose_name_plural = 'Настроки проекта'
+
+    class Meta(SingletonModel.Meta):
+        verbose_name = 'Настройка проекта'
+        verbose_name_plural = 'Настройка проекта'
 
     def __str__(self):
-        return self.verbose_name
+        return 'Настройка проекта'
 
 
 class NewFlatPage(models.Model):
@@ -55,7 +57,7 @@ class Feedback(models.Model):
     phone = models.CharField(verbose_name='Телефон', max_length=100, blank=True)
     message = models.TextField(verbose_name='Сообщение')
 
-    status = models.SmallIntegerField(verbose_name='Статус', max_length=100, choices=STATUS, default=0)
+    status = models.SmallIntegerField(verbose_name='Статус', choices=STATUS, default=0)
     created_datetime = models.DateTimeField(verbose_name='Дата и время создания', auto_now_add=True)
 
     class Meta:

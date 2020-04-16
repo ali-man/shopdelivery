@@ -39,5 +39,6 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'show', 'price_original', 'price_own', 'discount', 'price_discount']
     list_display_links = ['title']
     list_editable = ['show']
-    sortable_by = ['show', 'created_dt', 'updated_dt', 'discount', 'category', 'brand', 'volume_designation', 'action']
+    list_filter = ['updated_dt', 'discount', 'brand', 'volume_designation', 'action', 'show']
+    search_fields = ['title']
     inlines = (ProductImageInline, )  #ProductAttributeInline)

@@ -53,9 +53,9 @@ class Brand(models.Model):
         verbose_name_plural = 'Производители'
 
     def save(self, **kwargs):
-        super(Brand, self).save(**kwargs)
         if not self.slug:
-            self.slug = '{}-{}'.format(self.id, self.name)
+            self.slug = slugify(self.name)
+        super(Brand, self).save(**kwargs)
 
     def __str__(self):
         return self.name
@@ -63,34 +63,37 @@ class Brand(models.Model):
 
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', verbose_name='Категория', on_delete=models.PROTECT)
-    brand = models.ForeignKey(verbose_name='Производитель/Бренд', related_name='products', on_delete=models.PROTECT, blank=True)
-    title = models.CharField(verbose_name='Заголовок: Coca-cola 1,5л', max_length=200)
+    brand = models.ForeignKey(Brand, verbose_name='Производитель/Бренд', related_name='products',
+                              on_delete=models.PROTECT, null=True, blank=True)
+    title = models.CharField(verbose_name='Заголовок', max_length=200)
     slug = models.SlugField(verbose_name='Slug', max_length=210, unique=True, blank=True)
 
-    price_original = models.DecimalField(verbose_name='Цена покупки', decimal_places=10, max_digits=0)
-    price_own = models.DecimalField(verbose_name='Цена продажи', decimal_places=10, max_digits=0)
+    price_original = models.DecimalField(verbose_name='Цена покупки', decimal_places=0, max_digits=10)
+    price_own = models.DecimalField(verbose_name='Цена продажи', decimal_places=0, max_digits=10)
     discount = models.PositiveSmallIntegerField(verbose_name='Скидка в процентах', default=0)
-    price_discount = models.DecimalField(verbose_name='Скидка в процентах', decimal_places=10, max_digits=0, default=0)
+    price_discount = models.DecimalField(verbose_name='Скидочная сумма', decimal_places=0, max_digits=10, default=0)
 
     volume = models.FloatField(verbose_name='Объём', default='250', max_length=10)
-    volume_designation = models.ForeignKey(VolumeDesignation, verbose_name='Обозначение объёма', on_delete=models.PROTECT)
+    volume_designation = models.ForeignKey(VolumeDesignation, verbose_name='Обозначение объёма',
+                                           on_delete=models.PROTECT)
     count_piece = models.BooleanField(verbose_name='Считать по штучно', default=False)
 
     action = models.BooleanField(verbose_name='Вывести в раздел "Акция"', default=False)
     show = models.BooleanField(verbose_name='Вывод на сайте', default=True)
-    created_dt = models.DateTimeField(verbose_name='Дата и время добавления товара', auto_now_add=True)
-    updated_dt = models.DateTimeField(verbose_name='Дата и время обновления товара', auto_now=True)
+    created_dt = models.DateTimeField(verbose_name='Дата добавления товара', auto_now_add=True)
+    updated_dt = models.DateTimeField(verbose_name='Дата изменения товара', auto_now=True)
 
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
-    def save(self, **kwargs):
+    def save(self, *args, **kwargs):
         if not self.price_discount and self.discount:
-            self.price_discount = round(self.price_own * self.discount / 100)
-        super().save(**kwargs)
+            self.price_discount = self.price_own - round(self.price_own * self.discount / 100)
+        super().save(*args, **kwargs)
         if not self.slug:
             self.slug = '{}-{}'.format(self.id, slugify(self.title))
+            self.save(update_fields=['slug'])
 
     def __str__(self):
         return self.title
