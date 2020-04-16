@@ -1,6 +1,8 @@
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
+from imagekit.models import ImageSpecField
 from mptt.models import MPTTModel, TreeForeignKey
+from pilkit.processors import ResizeToFill
 from pytils.translit import slugify
 
 
@@ -29,11 +31,29 @@ class Category(MPTTModel):
         return self.name
 
 
+class VolumeDesignation(models.Model):
+    name = models.CharField(verbose_name='Объём', max_length=15)
+
+    class Meta:
+        verbose_name = 'Обёъм'
+        verbose_name_plural = 'Объём'
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', verbose_name='Категория', on_delete=models.PROTECT)
-    title = models.CharField(verbose_name='Заголовок', max_length=200)
+    title = models.CharField(verbose_name='Заголовок: Coca-cola 1,5л', max_length=200)
     slug = models.SlugField(verbose_name='Slug', max_length=210, unique=True, blank=True)
-    # TODO: other properties
+
+    price_original = models.DecimalField(verbose_name='Цена покупки', decimal_places=10, max_digits=0)
+    price_own = models.DecimalField(verbose_name='Цена продажи', decimal_places=10, max_digits=0)
+    price_discount = models.PositiveSmallIntegerField(verbose_name='Скидка в процентах', default=0)
+    volume = models.CharField(verbose_name='Объём', default='250')
+    volume_designation = models.ForeignKey(VolumeDesignation, verbose_name='Обозначение объёма', on_delete=models.PROTECT)
+
+    action = models.BooleanField(verbose_name='Товар по акции', default=False)
     show = models.BooleanField(verbose_name='Вывод на сайте', default=True)
     created_dt = models.DateTimeField(verbose_name='Дата и время добавления товара', auto_now_add=True)
     updated_dt = models.DateTimeField(verbose_name='Дата и время обновления товара', auto_now=True)
@@ -54,6 +74,10 @@ class Product(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', verbose_name='Товар', on_delete=models.CASCADE)
     file = models.ImageField(verbose_name='Изображение', upload_to='images/products/%Y/%m/%d/')
+    # image_web = ImageSpecField(source='file', processors=[ResizeToFill(200, 200)],
+    #                            format='JPEG', options={'quality': 90})
+    # image_mob = ImageSpecField(source='file', processors=[ResizeToFill(100, 100)],
+    #                            format='JPEG', options={'quality': 90})
 
     class Meta:
         verbose_name = 'Изображение'
@@ -66,14 +90,14 @@ class ProductImage(models.Model):
         return self.product.title
 
 
-class ProductAttribute(models.Model):
-    product = models.ForeignKey(Product, related_name='attributes', verbose_name='Товар', on_delete=models.CASCADE)
-    key = models.CharField(verbose_name='Свойтство', max_length=200)
-    value = models.CharField(verbose_name='Значание', max_length=200)
-
-    class Meta:
-        verbose_name = 'Атрибут'
-        verbose_name_plural = 'Атрибуты'
-
-    def __str__(self):
-        return '{}: {}}'.format(self.key, self.value)
+# class ProductAttribute(models.Model):
+#     product = models.ForeignKey(Product, related_name='attributes', verbose_name='Товар', on_delete=models.CASCADE)
+#     key = models.CharField(verbose_name='Свойтство', max_length=200)
+#     value = models.CharField(verbose_name='Значание', max_length=200)
+#
+#     class Meta:
+#         verbose_name = 'Атрибут'
+#         verbose_name_plural = 'Атрибуты'
+#
+#     def __str__(self):
+#         return '{}: {}}'.format(self.key, self.value)
