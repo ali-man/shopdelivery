@@ -15,10 +15,10 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Category)
 class CategoryAdmin(MPTTModelAdmin):
-    list_display = ['name', 'sort']
+    list_display = ['name', 'show']
     list_display_links = ['name']
-    list_editable = ['sort']
-    sortable_by = ['sort']
+    list_editable = ['show']
+    sortable_by = ['created_dt']
     mptt_level_indent = 20
 
 
@@ -28,8 +28,16 @@ class VolumeDesignationAdmin(admin.ModelAdmin):
     list_display_links = ['name']
 
 
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    list_display_links = ['name']
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'show']
+    list_display = ['id', 'title', 'show', 'price_original', 'price_own', 'discount', 'price_discount']
     list_display_links = ['title']
+    list_editable = ['show']
+    sortable_by = ['show', 'created_dt', 'updated_dt', 'discount', 'category', 'brand', 'volume_designation', 'action']
     inlines = (ProductImageInline, )  #ProductAttributeInline)
